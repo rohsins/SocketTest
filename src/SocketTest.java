@@ -11,6 +11,11 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
+import jssc.SerialPort;
+import jssc.SerialPortEvent;
+import jssc.SerialPortEventListener;
+import jssc.SerialPortException;
+
 public class SocketTest {
 
 	static String dstAddress = null;
@@ -19,13 +24,15 @@ public class SocketTest {
 	static String output = null;
 	static int serverPort = 60300;
 	
+	static SerialPort serialPort;
+	
 	public static void main(String[] args) throws InterruptedException, IOException {
 		
-		ServerSocket listener = new ServerSocket(serverPort);
-		DataInputStream dataInputStream = null;
-		DataOutputStream dataOutputStream = null;
-		int i = 0;
-		
+//		ServerSocket listener = new ServerSocket(serverPort);
+//		DataInputStream dataInputStream = null;
+//		DataOutputStream dataOutputStream = null;
+//		int i = 0;
+				
 		JMenuBar menuBar = new JMenuBar();
 		JMenu file;
 		JFrame frame = new JFrame("Socket Test");
@@ -53,8 +60,6 @@ public class SocketTest {
 //		label1.setText("Current Data");
 //		label1.setBounds(20,0,100,100);
 //		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		
 				
 		Swingmain s = new Swingmain();
 		s.file = new JMenu("File");
@@ -67,6 +72,8 @@ public class SocketTest {
 		s.panel.add(s.label1);
 		s.panel.add(s.label2);
 		s.panel.add(s.label3);
+		s.panel.add(s.label4);
+		s.panel.add(s.label5);
 		s.panel.setLayout(null);
 		s.frame.setJMenuBar(s.menuBar);
 		s.frame.setVisible(true);
@@ -79,48 +86,78 @@ public class SocketTest {
 		s.label2.setBounds(20,0,300,100);
 		s.label3.setText("Null");
 		s.label3.setBounds(80,0,300,100);
+		s.label4.setText("Serial:");
+		s.label4.setBounds(20,20,300,100);
+		s.label5.setText("Null");
+		s.label5.setBounds(80,20,300,100);
 		s.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
+		SerialPort serialPort = new SerialPort("COM1");
+//		serialPort = new SerialPort("COM1");
+		byte[] buffer;
+		String[] temp;
+		StringBuilder stringBuilder = new StringBuilder("");
 		try {
-			while(true) {
-				Socket socket = listener.accept();
-				try {
-					dataInputStream = new DataInputStream(socket.getInputStream());
-					dataOutputStream = new DataOutputStream(socket.getOutputStream());
-					input = dataInputStream.readUTF();
-					System.out.println(input);
-					s.label1.setText(input);
-					
-					if(input.equals("Door Opened")) {
-						output = "Door Opened";
-						System.out.println("inside if");
-					}
-					
-					if(input.equals("sendMeAllParameters")) {
-						output = String.valueOf(i);
-						s.label3.setText(output);
-						i++;
-					}
-					
-					if (output != null) {
-						dataOutputStream.writeUTF(output);
-					}
-					
-					output = null;
-					
-				}
-				catch (IOException e){
-					System.out.println(e+"what");
-				}
-				finally {
-					socket.close();
-				}
+			serialPort.openPort();
+			serialPort.setParams(9600, 8, 1, 0);
+//			int mask = SerialPort.MASK_RXCHAR;
+//			serialPort.setEventsMask(mask);
+//			serialPort.addEventListener(new SerialPortReader());
+			
+			while (true) {
+				buffer = serialPort.readBytes(32);
+				temp = new String(buffer).split("\n");
+//				for (int k = 0; k < temp.length; k++ ) {
+//					stringBuilder.append(temp[k]);
+////					stringBuilder.append('\r');
+//				}
+//				s.label5.setText(stringBuilder.toString());
+				s.label5.setText(new String(temp[1]));
 			}
+//			serialPort.closePort();
+		} catch (SerialPortException e) {
+			System.out.println(e);
 		}
-		finally {
-			listener.close();
-		}
+				
+//		try {
+//			while(true) {
+//				Socket socket = listener.accept();
+//				try {
+//					dataInputStream = new DataInputStream(socket.getInputStream());
+//					dataOutputStream = new DataOutputStream(socket.getOutputStream());
+//					input = dataInputStream.readUTF();
+//					System.out.println(input);
+//					s.label1.setText(input);
+//					
+//					if(input.equals("Door Opened")) {
+//						output = "Door Opened";
+//						System.out.println("inside if");
+//					}
+//					
+//					if(input.equals("sendMeAllParameters")) {
+//						output = String.valueOf(i);
+//						s.label3.setText(output);
+//						i++;
+//					}
+//					
+//					if (output != null) {
+//						dataOutputStream.writeUTF(output);
+//					}
+//					
+//					output = null;
+//					
+//				}
+//				catch (IOException e){
+//					System.out.println(e+"what");
+//				}
+//				finally {
+//					socket.close();
+//				}
+//			}
+//		}
+//		finally {
+//			listener.close();
+//		}
 		
-	}
-	
+	}	
 }
