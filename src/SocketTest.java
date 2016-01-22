@@ -25,6 +25,41 @@ public class SocketTest {
 	static int serverPort = 60300;
 	
 	static SerialPort serialPort;
+	static byte[] buffer;
+	String[] temp;
+	
+	static class SerialInterfaceO implements SerialPortEventListener {
+		
+		String[] temp;
+		@Override
+		public void serialEvent(SerialPortEvent event) {
+			if (event.isRXCHAR()) {
+//				if(event.getEventValue() == 1) {
+					try {
+//						byte buffer[] = serialPort.readBytes(10);
+						temp = new String(buffer).split("\n");
+//						System.out.println(temp[1]);
+						System.out.println(event.getEventValue());
+					} catch (Exception e)/*(SerialPortException e)*/ {
+						System.out.println(e);
+					}
+//				}
+			} else if (event.isCTS()) {
+				if(event.getEventValue() == 1) {
+					System.out.println("CTS_ON");
+				} else {
+					System.out.println("CTS_OFF");
+				}
+			} else if (event.isDSR()) {
+				if(event.getEventValue() == 1) {
+					System.out.println("DSR_ON");
+				} else {
+					System.out.println("DSR_OFF");
+				}
+			}
+		}
+	}
+	
 	
 	public static void main(String[] args) throws InterruptedException, IOException {
 		
@@ -41,25 +76,6 @@ public class SocketTest {
 		JMenuItem exit = new JMenuItem("Exit");
 		JLabel label = new JLabel();
 		JLabel label1 = new JLabel();
-		
-		
-//		file = new JMenu("File");
-//		menuBar.add(file);
-//		file.add(open);
-//		file.add(exit);
-//		frame.add(panel);
-//		panel.add(label);
-//		panel.add(label1);
-//		frame.setJMenuBar(menuBar);
-//		frame.setVisible(true);
-//		frame.setSize(640, 480);
-//		panel.setLayout(null);
-//		
-//		label.setText("one");
-//		label.setBounds(20,-20,100,100);	
-//		label1.setText("Current Data");
-//		label1.setBounds(20,0,100,100);
-//		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				
 		Swingmain s = new Swingmain();
 		s.file = new JMenu("File");
@@ -77,7 +93,7 @@ public class SocketTest {
 		s.panel.setLayout(null);
 		s.frame.setJMenuBar(s.menuBar);
 		s.frame.setVisible(true);
-		s.frame.setSize(320, 240);
+		s.frame.setSize(820, 640);
 		s.label.setText("Data RX:");
 		s.label.setBounds(20,-20,100,100);
 		s.label1.setText("Null");
@@ -89,35 +105,46 @@ public class SocketTest {
 		s.label4.setText("Serial:");
 		s.label4.setBounds(20,20,300,100);
 		s.label5.setText("Null");
-		s.label5.setBounds(80,20,300,100);
+		s.label5.setBounds(80,20,700,100);
 		s.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		SerialPort serialPort = new SerialPort("COM1");
-//		serialPort = new SerialPort("COM1");
-		byte[] buffer;
-		String[] temp;
+
 		StringBuilder stringBuilder = new StringBuilder("");
 		try {
 			serialPort.openPort();
 			serialPort.setParams(9600, 8, 1, 0);
-//			int mask = SerialPort.MASK_RXCHAR;
-//			serialPort.setEventsMask(mask);
-//			serialPort.addEventListener(new SerialPortReader());
-			
+			int mask = SerialPort.MASK_RXCHAR;
+			serialPort.setEventsMask(mask);
+//			serialPort.addEventListener(new SerialInterfaceO());
+			String tempi[] = null;
+			int flag = 0;
 			while (true) {
-				buffer = serialPort.readBytes(32);
-				temp = new String(buffer).split("\n");
-//				for (int k = 0; k < temp.length; k++ ) {
-//					stringBuilder.append(temp[k]);
-////					stringBuilder.append('\r');
+				buffer = serialPort.readBytes(1);
+				tempi = new String(buffer).split("\n");
+//				for (int k = 0; k < tempi.length; k++ ) {
+					stringBuilder.append(tempi[0]);
 //				}
+				if(tempi[0].equals("\r")) {
+					stringBuilder.append("  ");
+					flag++;
+					if(flag == 5) {
+						stringBuilder.delete(0, 100);
+						flag = 0;
+					}
+//					stringBuilder = new StringBuilder("");
+				}
+				s.label5.setText(stringBuilder.toString());
+//				stringBuilder = new StringBuilder("");
 //				s.label5.setText(stringBuilder.toString());
-				s.label5.setText(new String(temp[1]));
+//				s.label5.setText(new String(tempi[0]));
 			}
 //			serialPort.closePort();
 		} catch (SerialPortException e) {
 			System.out.println(e);
 		}
+		
+		
 				
 //		try {
 //			while(true) {
@@ -159,5 +186,5 @@ public class SocketTest {
 //			listener.close();
 //		}
 		
-	}	
+	}
 }
