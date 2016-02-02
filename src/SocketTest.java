@@ -186,7 +186,7 @@ public class SocketTest {
 					
 					if(input.equals("sendMeAllParameters")) {
 //						output = String.valueOf(i);
-						output = stringBuilder.toString();
+						output = "inductance-"+stringBuilder.toString();
 						s.label3.setText(output);
 //						i++;
 					}
