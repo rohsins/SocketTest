@@ -22,7 +22,7 @@ public class SocketTest {
 	static int dstPort = 8080;
 	static String input = null;
 	static String output = null;
-	static int serverPort = 60300;
+	static int serverPort = 60200;
 	
 	
 	static SerialPort serialPort = new SerialPort("COM1");
@@ -34,6 +34,7 @@ public class SocketTest {
 		static byte[] buffer;
 		String[] temp;
 		int flag = 0;
+		String tem;
 
 		@Override
 		public void serialEvent(SerialPortEvent event) {
@@ -50,9 +51,10 @@ public class SocketTest {
 							if(temp[0].equals("n")) {
 	//							stringBuilder.append("");
 								flag++;
-								if(flag == 1) {
-									stringBuilder.delete(0, 50);
+								if(flag == 15) {
+									stringBuilder.delete(0, 1000);
 									flag = 0;
+									stringBuilder.append("\n"+"n");
 								}
 	//							stringBuilder = new StringBuilder("");
 							}
@@ -184,9 +186,9 @@ public class SocketTest {
 						System.out.println("inside if");
 					}
 					
-					if(input.equals("sendMeAllParameters")) {
+					if(input.equals("0xFD")) {
 //						output = String.valueOf(i);
-						output = "inductance-"+stringBuilder.toString();
+						output = "0xA0-@="+stringBuilder.toString();
 						s.label3.setText(output);
 //						i++;
 					}
