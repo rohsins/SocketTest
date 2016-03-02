@@ -25,7 +25,7 @@ public class SocketTest {
 	static int serverPort = 60300;
 	
 	
-	static SerialPort serialPort = new SerialPort("COM1");
+	static SerialPort serialPort = new SerialPort("COM4");
 	static Swingmain s = new Swingmain();
 	static StringBuilder stringBuilder = new StringBuilder();
 	
@@ -48,13 +48,13 @@ public class SocketTest {
 	//						for (int k = 0; k < tempi.length; k++ ) {
 								stringBuilder.append(temp[0]);
 	//						}
-							if(temp[0].equals("n")) {
+							if(temp[0].equals(" ")) {
 	//							stringBuilder.append("");
 								flag++;
-								if(flag == 18) {
+								if(flag == 1) {
 									stringBuilder.delete(0, 1000);
 									flag = 0;
-									stringBuilder.append("\n"+"n");
+//									stringBuilder.append("\n");
 								}
 	//							stringBuilder = new StringBuilder("");
 							}
@@ -186,9 +186,10 @@ public class SocketTest {
 						System.out.println("inside if");
 					}
 					
-					if(input.equals("0xFD")) {
+					if(input.equals("0d00")) {
+						serialPort.writeString("DCV?\r");
 //						output = String.valueOf(i);
-						output = "0xA0-@="+stringBuilder.toString();
+						output = "voltage-@="+stringBuilder.toString();
 						s.label3.setText(output);
 //						i++;
 					}
