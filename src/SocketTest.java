@@ -22,7 +22,7 @@ public class SocketTest {
 	static int dstPort = 8080;
 	static String input = null;
 	static String output = null;
-	static int serverPort = 60200;
+	static int serverPort = 60300;
 	
 	
 	static SerialPort serialPort = new SerialPort("COM1");
@@ -51,7 +51,7 @@ public class SocketTest {
 							if(temp[0].equals("n")) {
 	//							stringBuilder.append("");
 								flag++;
-								if(flag == 15) {
+								if(flag == 18) {
 									stringBuilder.delete(0, 1000);
 									flag = 0;
 									stringBuilder.append("\n"+"n");
