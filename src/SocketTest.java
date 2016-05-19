@@ -27,7 +27,7 @@ public class SocketTest {
 	
 	static SerialPort serialPort = new SerialPort("COM1");
 	static Swingmain s = new Swingmain();
-	static StringBuilder stringBuilder = new StringBuilder();
+	static StringBuilder stringBuilder = new StringBuilder("Link Established\n");
 	
 	static class SerialInterfaceO implements SerialPortEventListener {
 		
@@ -35,6 +35,8 @@ public class SocketTest {
 		String[] temp;
 		int flag = 0;
 		String tem;
+		boolean escapeCharacterFlag = false;
+		int newLineCount = 0;
 
 		@Override
 		public void serialEvent(SerialPortEvent event) {
@@ -44,22 +46,57 @@ public class SocketTest {
 					try {
 						while (event.isRXCHAR()) {
 							buffer = serialPort.readBytes(1);
-							temp = new String(buffer).split("\n");
-	//						for (int k = 0; k < tempi.length; k++ ) {
-								stringBuilder.append(temp[0]);
-	//						}
-							if(temp[0].equals("n")) {
-	//							stringBuilder.append("");
-								flag++;
-								if(flag == 18) {
-									stringBuilder.delete(0, 1000);
-									flag = 0;
-									stringBuilder.append("\n"+"n");
+							temp = new String(buffer).split("\r");
+							if(escapeCharacterFlag == true) {
+								escapeCharacterFlag = false;
+								if(temp[0].equals("n")) {
+									stringBuilder.append("\n");
+									newLineCount++;
 								}
-	//							stringBuilder = new StringBuilder("");
+								if(temp[0].equals("r")) stringBuilder.append("\r");
+								if(temp[0].equals("t")) stringBuilder.append("\t");
+								if(temp[0].equals("b")) stringBuilder.append("\b");
+								if(temp[0].equals("f")) stringBuilder.append("\f");
+								if(temp[0].equals("'")) stringBuilder.append("\'");
+								System.out.println(escapeCharacterFlag);
+								System.out.println(stringBuilder);
+								System.out.println(stringBuilder.length());
+								stringBuilder.delete(stringBuilder.length()-2,stringBuilder.length()-1);
 							}
-							s.label5.setText(stringBuilder.toString());
-						}					
+							else {
+								if(temp[0].equals("\\")) escapeCharacterFlag = true;
+		//						for (int k = 0; k < tempi.length; k++ ) {
+									stringBuilder.append(temp[0]);
+		//						}
+									
+									if(newLineCount == 18) {
+										stringBuilder.delete(0, 1000);
+										newLineCount = 0;
+//										stringBuilder.append("\r");
+										stringBuilder.append(temp[0]);
+									}
+									if(stringBuilder.length() > 700) {
+										stringBuilder.delete(0, 1000);
+										newLineCount = 0;
+//										stringBuilder.append("\r");
+										stringBuilder.append(temp[0]);
+									}
+								
+//								if(temp[0].equals("n")) {
+//		//							stringBuilder.append("");
+//									flag++;
+//									if(flag == 18) {
+//										stringBuilder.delete(0, 1000);
+//										flag = 0;
+//										stringBuilder.append("\r");
+//									}
+//		//							stringBuilder = new StringBuilder("");
+//								}
+								s.label5.setText(stringBuilder.toString());
+								System.out.println(escapeCharacterFlag);
+								System.out.println(temp[0]);
+							}	
+						}
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -165,7 +202,7 @@ public class SocketTest {
 				
 		try {
 			serialPort.openPort();
-			serialPort.setParams(9600, 8, 1, 0);
+			serialPort.setParams(57600, 8, 1, 0);
 			int mask = SerialPort.MASK_RXCHAR;
 			serialPort.setEventsMask(mask);
 			serialPort.addEventListener(new SerialInterfaceO());
@@ -189,7 +226,7 @@ public class SocketTest {
 					if(input.equals("0xFD")) {
 //						output = String.valueOf(i);
 						output = "0xA0-@="+stringBuilder.toString();
-						s.label3.setText(output);
+						s.label3.setText(stringBuilder.toString());
 //						i++;
 					}
 					
